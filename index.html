@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Protótipo 3D em Terceira Pessoa</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // 1. Configuração da Cena, Câmera e Renderizador
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb); // Céu azul
+
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 2. Iluminação
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 10, 7.5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040));
+
+    // 3. Chão (Cenário)
+    const floorGeometry = new THREE.PlaneGeometry(50, 50);
+    const floorMaterial = new THREE.MeshLambertMaterial({ color: 0x228b22 });
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2;
+    scene.add(floor);
+
+    // 4. Personagem (Cubo representando o jogador)
+    const playerGeometry = new THREE.BoxGeometry(1, 2, 1);
+    const playerMaterial = new THREE.MeshLambertMaterial({ color: 0xff0000 });
+    const player = new THREE.Mesh(playerGeometry, playerMaterial);
+    player.position.y = 1;
+    scene.add(player);
+
+    // 5. Lógica da Câmera em 3ª Pessoa e Movimentação
+    const keys = {};
+    window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
+    window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // Controles de movimento
+      const speed = 0.1;
+      if (keys['w']) player.position.z -= speed;
+      if (keys['s']) player.position.z += speed;
+      if (keys['a']) player.position.x -= speed;
+      if (keys['d']) player.position.x += speed;
+
+      // Posiciona a câmera atrás e acima do personagem (Visão de 3ª Pessoa)
+      camera.position.x = player.position.x;
+      camera.position.y = player.position.y + 3;
+      camera.position.z = player.position.z + 5;
+      camera.lookAt(player.position);
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
